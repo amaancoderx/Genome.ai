@@ -1,0 +1,40 @@
+# Environment variables (contains sensitive API keys)
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Uploads and outputs (generated content)
+uploads/
+outputs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Conversation history
+conversations/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
