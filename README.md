@@ -148,6 +148,57 @@ pixaro/
 - Keep your API keys secure
 - The `.env` file is excluded via `.gitignore`
 
+## 🌐 Deployment
+
+### Deploy to Render.com (Recommended - FREE)
+
+1. **Fork/Clone this repository**
+
+2. **Go to [Render.com](https://render.com)** and sign up
+
+3. **Create a New Web Service**
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select the `Genome-AI` repository
+
+4. **Configure the service**
+   - **Name**: genome-ai (or your preferred name)
+   - **Region**: Choose closest to you
+   - **Branch**: main
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn market_genome_main:app --host 0.0.0.0 --port $PORT`
+   - **Plan**: Free
+
+5. **Add Environment Variables**
+   Click "Advanced" → "Add Environment Variable" and add:
+   ```
+   OPENAI_API_KEY=your-openai-key
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASSWORD=your-app-password
+   SENDER_EMAIL=your-email@gmail.com
+   SENDER_NAME=Genome AI
+   ```
+
+6. **Deploy**
+   - Click "Create Web Service"
+   - Wait for deployment (3-5 minutes)
+   - Your app will be live at: `https://your-app-name.onrender.com`
+
+### Alternative: Deploy to Railway.app
+
+1. Go to [Railway.app](https://railway.app)
+2. Click "Start a New Project"
+3. Select "Deploy from GitHub repo"
+4. Choose `Genome-AI` repository
+5. Add environment variables (same as above)
+6. Railway will auto-detect and deploy!
+
+### Deploy to Vercel (Not Recommended)
+
+⚠️ Vercel has limitations for FastAPI apps (10s timeout, serverless only). Use Render or Railway instead.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
