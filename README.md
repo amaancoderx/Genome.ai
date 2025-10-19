@@ -85,8 +85,8 @@ Pixaro is an intelligent marketing platform that provides AI-powered brand analy
    ```
 
 5. **Access the application**
-   - Main Interface: http://127.0.0.1:8000/
-   - Chat Interface: http://127.0.0.1:8000/chat
+   - **AI Chat Assistant** (Homepage): http://127.0.0.1:8000/
+   - Market Genome Analysis: http://127.0.0.1:8000/genome
    - API Documentation: http://127.0.0.1:8000/docs
 
 ## 📱 Responsive Design
@@ -99,14 +99,8 @@ Pixaro is fully responsive and works seamlessly on:
 
 ## 🎯 Usage
 
-### Market Genome Analysis
-1. Navigate to http://127.0.0.1:8000/
-2. Enter a brand name, website URL, or social media handle
-3. Provide your email address
-4. Receive a comprehensive Marketing Genome Report via email
-
-### AI Chat Assistant
-1. Navigate to http://127.0.0.1:8000/chat
+### AI Chat Assistant (Default Homepage)
+1. Navigate to http://127.0.0.1:8000/ (homepage)
 2. Connect your brand by entering Instagram handle or brand name
 3. Start chatting with your personal AI marketing strategist
 4. Ask for:
@@ -123,6 +117,12 @@ Pixaro is fully responsive and works seamlessly on:
 - "Show me my audience personas"
 - "Create a weekly content strategy"
 - "Predict engagement for this content idea"
+
+### Market Genome Analysis (Advanced)
+1. Navigate to http://127.0.0.1:8000/genome
+2. Enter a brand name, website URL, or social media handle
+3. Provide your email address
+4. Receive a comprehensive Marketing Genome Report via email
 
 ## 📂 Project Structure
 

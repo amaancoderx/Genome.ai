@@ -60,33 +60,34 @@ class ChatReportRequest(BaseModel):
 async def startup_event():
     """Initialize app"""
     print("=" * 60)
-    print("MARKET GENOME - AI Marketing Strategy Builder")
+    print("GENOME AI - Your Personal Marketing Strategist")
     print("=" * 60)
     print("")
     print("Capabilities:")
+    print("   - AI Chat Assistant (Brand Strategy & Content)")
     print("   - Brand DNA Analysis")
     print("   - Competitor Intelligence")
-    print("   - Growth Roadmap Generation")
-    print("   - Content Strategy Blueprint")
+    print("   - AI Image Generation (DALL-E 3)")
+    print("   - Content Strategy & Planning")
     print("")
-    print(f"API: http://localhost:{settings.api_port}")
-    print(f"Docs: http://localhost:{settings.api_port}/docs")
-    print(f"UI: http://localhost:{settings.api_port}/")
+    print(f"Chat Interface: http://localhost:{settings.api_port}/")
+    print(f"Market Genome: http://localhost:{settings.api_port}/genome")
+    print(f"API Docs: http://localhost:{settings.api_port}/docs")
     print("")
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    """Serve the Market Genome UI"""
-    html_file = os.path.join(os.path.dirname(__file__), "market_genome_page.html")
+    """Serve the Chat Interface (Default Homepage)"""
+    html_file = os.path.join(os.path.dirname(__file__), "chat_interface.html")
     with open(html_file, "r", encoding="utf-8") as f:
         return f.read()
 
 
-@app.get("/chat", response_class=HTMLResponse)
-async def chat_interface():
-    """Serve the Chat Interface"""
-    html_file = os.path.join(os.path.dirname(__file__), "chat_interface.html")
+@app.get("/genome", response_class=HTMLResponse)
+async def genome_page():
+    """Serve the Market Genome Analysis Page"""
+    html_file = os.path.join(os.path.dirname(__file__), "market_genome_page.html")
     with open(html_file, "r", encoding="utf-8") as f:
         return f.read()
 
