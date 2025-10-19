@@ -388,6 +388,8 @@
             display: flex;
             gap: 12px;
             animation: slideIn 0.3s ease-out;
+            position: relative;
+            z-index: 10;
         }
 
         @keyframes slideIn {
@@ -811,6 +813,12 @@
             height: 100%;
             padding: 40px;
             text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-screen.hidden {
+            display: none !important;
         }
 
         .welcome-icon {
@@ -1690,6 +1698,13 @@
 
         // Add Message
         function addMessage(role, content, actionType = null, needsReport = false, saveToHistory = true, imageUrl = null) {
+            // Hide welcome screen if it exists
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen && !welcomeScreen.classList.contains('hidden')) {
+                welcomeScreen.classList.add('hidden');
+                welcomeScreen.style.display = 'none';
+            }
+
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
 
