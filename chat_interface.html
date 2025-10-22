@@ -1219,6 +1219,22 @@
         </div>
     </div>
 
+    <!-- Brand Connection Warning Modal -->
+    <div class="email-modal" id="brandWarningModal">
+        <div class="email-modal-content">
+            <div class="email-modal-header">
+                <h3>⚠️ Connect Your Brand First</h3>
+                <button class="email-modal-close" onclick="closeBrandWarning()">×</button>
+            </div>
+            <div class="email-modal-body">
+                <p>Please connect your brand to start using the AI assistant. Enter your Instagram handle, website, or brand name above.</p>
+            </div>
+            <div class="email-modal-actions">
+                <button class="submit-btn" onclick="closeBrandWarning()">Got it!</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Email Modal -->
     <div class="email-modal" id="emailModal">
         <div class="email-modal-content">
@@ -1236,6 +1252,61 @@
             <div class="email-modal-actions">
                 <button class="cancel-btn" onclick="closeEmailModal()">Cancel</button>
                 <button class="submit-btn" onclick="submitEmailReport()" id="emailSubmitBtn">Send Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Automation Modal -->
+    <div class="email-modal" id="contentModal">
+        <div class="email-modal-content" style="max-width: 600px;">
+            <div class="email-modal-header">
+                <h3>🚀 Automate Content Posting</h3>
+                <button class="email-modal-close" onclick="closeContentModal()">×</button>
+            </div>
+            <div class="email-modal-body">
+                <p>Upload or generate content, and I'll automatically post it to your social media at your preferred time!</p>
+
+                <div class="email-input-group">
+                    <label for="contentText">Content / Caption</label>
+                    <textarea id="contentText" rows="4" placeholder="Enter your content or let AI generate it..." style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit;"></textarea>
+                </div>
+
+                <div class="email-input-group">
+                    <label for="contentImage">Upload Image (Optional)</label>
+                    <input type="file" id="contentImage" accept="image/*" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div class="email-input-group">
+                    <label for="platformSelect">Platform</label>
+                    <select id="platformSelect" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                        <option value="">Select Platform</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="twitter">Twitter/X</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+
+                <div class="email-input-group">
+                    <label for="scheduleTime">Schedule Time (Optional - leave empty for immediate post)</label>
+                    <input type="datetime-local" id="scheduleTime" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div class="email-input-group">
+                    <label for="hashtagInput">Hashtags (Optional)</label>
+                    <input type="text" id="hashtagInput" placeholder="#marketing #business #growth" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div class="email-input-group">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="aiGenerate" style="width: auto;">
+                        <span>Let AI generate caption and hashtags for me</span>
+                    </label>
+                </div>
+            </div>
+            <div class="email-modal-actions">
+                <button class="cancel-btn" onclick="closeContentModal()">Cancel</button>
+                <button class="submit-btn" onclick="submitContentAutomation()" id="contentSubmitBtn">Schedule Post</button>
             </div>
         </div>
     </div>
@@ -1332,6 +1403,7 @@
             <!-- Input Container -->
             <div class="input-container">
                 <div class="quick-actions" id="quickActions">
+                    <div class="quick-action" onclick="openContentModal()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600;">🚀 Automate Post</div>
                     <div class="quick-action" onclick="sendQuickMessage('What should I post today?')">What should I post today?</div>
                     <div class="quick-action" onclick="sendQuickMessage('Who are my competitors with links?')">Competitors with links</div>
                     <div class="quick-action" onclick="sendQuickMessage('Generate Instagram captions')">Generate captions</div>
@@ -1635,10 +1707,91 @@
             }
         });
 
+        // Content Automation Modal Functions
+        function openContentModal() {
+            if (!isConnected) {
+                showBrandWarning();
+                return;
+            }
+            const contentModal = document.getElementById('contentModal');
+            contentModal.classList.add('active');
+        }
+
+        function closeContentModal() {
+            const contentModal = document.getElementById('contentModal');
+            contentModal.classList.remove('active');
+            // Clear form
+            document.getElementById('contentText').value = '';
+            document.getElementById('contentImage').value = '';
+            document.getElementById('platformSelect').value = '';
+            document.getElementById('scheduleTime').value = '';
+            document.getElementById('hashtagInput').value = '';
+            document.getElementById('aiGenerate').checked = false;
+        }
+
+        async function submitContentAutomation() {
+            const platform = document.getElementById('platformSelect').value;
+            const contentText = document.getElementById('contentText').value.trim();
+            const scheduleTime = document.getElementById('scheduleTime').value;
+            const hashtags = document.getElementById('hashtagInput').value.trim();
+            const aiGenerate = document.getElementById('aiGenerate').checked;
+            const imageFile = document.getElementById('contentImage').files[0];
+
+            if (!platform) {
+                alert('Please select a platform');
+                return;
+            }
+
+            const submitBtn = document.getElementById('contentSubmitBtn');
+            submitBtn.textContent = 'Scheduling...';
+            submitBtn.disabled = true;
+
+            try {
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('session_id', sessionId);
+                formData.append('platform', platform);
+                formData.append('content_text', contentText);
+                formData.append('schedule_time', scheduleTime || '');
+                formData.append('hashtags', hashtags);
+                formData.append('ai_generate', aiGenerate);
+                if (imageFile) {
+                    formData.append('image', imageFile);
+                }
+
+                const response = await fetch('/api/content/schedule', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeContentModal();
+                    const scheduleMsg = scheduleTime ? `at ${new Date(scheduleTime).toLocaleString()}` : 'immediately';
+                    addMessage('assistant', `✅ Great! Your content has been scheduled to post on ${platform.charAt(0).toUpperCase() + platform.slice(1)} ${scheduleMsg}!\n\nI'll handle everything from here. You'll get a confirmation once it's posted.`);
+                } else {
+                    alert('Error scheduling content: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Content scheduling error:', error);
+                alert('Failed to schedule content. Please try again.');
+            } finally {
+                submitBtn.textContent = 'Schedule Post';
+                submitBtn.disabled = false;
+            }
+        }
+
         // Send Message
         async function sendMessage() {
             const message = messageInput.value.trim();
-            if (!message || !isConnected) return;
+            if (!message) return;
+
+            if (!isConnected) {
+                showBrandWarning();
+                messageInput.value = '';
+                return;
+            }
 
             addMessage('user', message);
             messageInput.value = '';
@@ -1825,10 +1978,23 @@
             return text;
         }
 
+        // Brand Warning Modal Functions
+        function showBrandWarning() {
+            const brandWarningModal = document.getElementById('brandWarningModal');
+            brandWarningModal.classList.add('active');
+        }
+
+        function closeBrandWarning() {
+            const brandWarningModal = document.getElementById('brandWarningModal');
+            brandWarningModal.classList.remove('active');
+            // Focus on brand input
+            brandInput.focus();
+        }
+
         // Quick Message
         function sendQuickMessage(message) {
             if (!isConnected) {
-                alert('Please connect your brand first!');
+                showBrandWarning();
                 return;
             }
             messageInput.value = message;
@@ -1838,7 +2004,7 @@
         // Email Modal Functions
         function openEmailModal() {
             if (!isConnected) {
-                alert('Please connect your brand first!');
+                showBrandWarning();
                 return;
             }
             emailModal.classList.add('active');

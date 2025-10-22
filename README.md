@@ -18,14 +18,24 @@ Pixaro is an intelligent marketing platform that provides AI-powered brand analy
 - Competitor analysis with actionable insights
 - Engagement predictions
 - Weekly content planning
+- **🚀 NEW: Content Automation** - Schedule posts to social media
 
-### 3. **Key Capabilities**
+### 3. **Content Automation (NEW!)**
+- 📤 **Upload or Generate Content**: Add your own content or let AI create it
+- 🎯 **Multi-Platform Support**: Instagram, Twitter/X, LinkedIn, Facebook
+- ⏰ **Smart Scheduling**: Post immediately or schedule for later
+- 🤖 **AI-Powered Captions**: Auto-generate engaging captions and hashtags
+- 📸 **Image Upload**: Attach images to your posts
+- ✅ **One-Click Posting**: Automate your entire social media workflow
+
+### 4. **Key Capabilities**
 - 🎨 **Content Creation**: Generate posts, captions, and visual content
 - 👥 **Audience Insights**: Understand micro-personas and behavior
 - 🎯 **Competitor Analysis**: Identify gaps and opportunities
 - 📊 **Strategic Planning**: Get actionable growth roadmaps
 - 🖼️ **AI Image Generation**: Create professional visuals using DALL-E 3
 - 📧 **PDF Reports**: Comprehensive marketing genome reports via email
+- 🚀 **Content Automation**: Schedule and auto-post to social media
 
 ## 🛠️ Tech Stack
 
@@ -117,6 +127,23 @@ Pixaro is fully responsive and works seamlessly on:
 - "Show me my audience personas"
 - "Create a weekly content strategy"
 - "Predict engagement for this content idea"
+
+### Content Automation (NEW!)
+1. Click the **"🚀 Automate Post"** button in the chat interface
+2. Choose from the following options:
+   - **Upload your own content** or leave it blank for AI generation
+   - **Upload an image** (optional)
+   - **Select platform**: Instagram, Twitter/X, LinkedIn, or Facebook
+   - **Schedule time**: Choose when to post (or leave blank for immediate)
+   - **Add hashtags**: Or let AI generate them for you
+   - **AI Generation**: Check the box to let AI create caption and hashtags
+3. Click **"Schedule Post"**
+4. AI will handle the rest and confirm when posted!
+
+**Note**: This is a demo implementation. For production use, you would need to:
+- Connect your social media accounts via OAuth
+- Use official social media APIs (Instagram Graph API, Twitter API, etc.)
+- Implement proper authentication and permission handling
 
 ### Market Genome Analysis (Advanced)
 1. Navigate to http://127.0.0.1:8000/genome

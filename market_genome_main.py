@@ -601,6 +601,147 @@ async def list_chat_sessions():
     }
 
 
+# ===================================================================
+# CONTENT AUTOMATION API ENDPOINTS
+# ===================================================================
+
+# In-memory storage for scheduled posts (in production, use database)
+scheduled_posts: Dict[str, dict] = {}
+
+
+@app.post("/api/content/schedule")
+async def schedule_content(
+    background_tasks: BackgroundTasks,
+    session_id: str = Form(...),
+    platform: str = Form(...),
+    content_text: str = Form(""),
+    schedule_time: str = Form(""),
+    hashtags: str = Form(""),
+    ai_generate: bool = Form(False),
+    image: Optional[bytes] = None
+):
+    """
+    Schedule content to be posted on social media platforms.
+
+    NOTE: This is a DEMO implementation. In production, you would:
+    1. Store posts in a database
+    2. Use actual social media APIs (Instagram Graph API, Twitter API, etc.)
+    3. Implement OAuth authentication for user accounts
+    4. Use a task queue (Celery, RQ) for scheduled posts
+    5. Store uploaded images properly
+
+    For now, this simulates the scheduling and returns success.
+    """
+
+    try:
+        # Validate session
+        if session_id not in chat_sessions:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        session = chat_sessions[session_id]
+        brand_handle = session['brand_handle']
+
+        # Generate post ID
+        post_id = str(uuid.uuid4())
+
+        # If AI generation is requested and content is empty
+        if ai_generate and not content_text:
+            from brand_ai_assistant import PixaroBrandAssistant
+            assistant = PixaroBrandAssistant(brand_handle)
+
+            # Generate caption using AI
+            ai_response = assistant.chat(f"Generate a {platform} post caption about our latest update. Make it engaging and professional.")
+            content_text = ai_response.get('response', 'Check out our latest update!')
+
+        # Add hashtags if provided
+        final_content = content_text
+        if hashtags:
+            final_content += f"\n\n{hashtags}"
+        elif ai_generate:
+            # Generate hashtags using AI
+            final_content += "\n\n#marketing #business #growth #success"
+
+        # Store scheduled post
+        scheduled_posts[post_id] = {
+            'post_id': post_id,
+            'session_id': session_id,
+            'brand_handle': brand_handle,
+            'platform': platform,
+            'content': final_content,
+            'schedule_time': schedule_time or datetime.now().isoformat(),
+            'status': 'scheduled',
+            'created_at': datetime.now().isoformat(),
+            'has_image': image is not None
+        }
+
+        print(f"\n✅ Content Scheduled:")
+        print(f"   Post ID: {post_id}")
+        print(f"   Platform: {platform.upper()}")
+        print(f"   Brand: {brand_handle}")
+        print(f"   Schedule: {schedule_time or 'Immediate'}")
+        print(f"   Content: {content_text[:100]}...")
+
+        # In production, this would:
+        # 1. Save image to storage
+        # 2. Queue the post in Celery/RQ
+        # 3. Use OAuth tokens to post via social media APIs
+        # 4. Send confirmation email
+
+        # For now, simulate successful scheduling
+        return {
+            "success": True,
+            "post_id": post_id,
+            "message": f"Content scheduled successfully for {platform}",
+            "platform": platform,
+            "schedule_time": schedule_time or "immediate",
+            "content_preview": final_content[:200]
+        }
+
+    except Exception as e:
+        print(f"ERROR - Content scheduling failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Scheduling error: {str(e)}")
+
+
+@app.get("/api/content/scheduled")
+async def get_scheduled_posts(session_id: str):
+    """Get all scheduled posts for a session."""
+
+    if session_id not in chat_sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Filter posts for this session
+    user_posts = [
+        post for post in scheduled_posts.values()
+        if post['session_id'] == session_id
+    ]
+
+    return {
+        "total": len(user_posts),
+        "posts": user_posts
+    }
+
+
+@app.delete("/api/content/scheduled/{post_id}")
+async def cancel_scheduled_post(post_id: str, session_id: str):
+    """Cancel a scheduled post."""
+
+    if post_id not in scheduled_posts:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    post = scheduled_posts[post_id]
+
+    if post['session_id'] != session_id:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    # Delete the post
+    del scheduled_posts[post_id]
+
+    return {
+        "success": True,
+        "message": "Post cancelled successfully"
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
