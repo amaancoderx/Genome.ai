@@ -1256,60 +1256,6 @@
         </div>
     </div>
 
-    <!-- Content Automation Modal -->
-    <div class="email-modal" id="contentModal">
-        <div class="email-modal-content" style="max-width: 600px;">
-            <div class="email-modal-header">
-                <h3>🚀 Automate Content Posting</h3>
-                <button class="email-modal-close" onclick="closeContentModal()">×</button>
-            </div>
-            <div class="email-modal-body">
-                <p>Upload or generate content, and I'll automatically post it to your social media at your preferred time!</p>
-
-                <div class="email-input-group">
-                    <label for="contentText">Content / Caption</label>
-                    <textarea id="contentText" rows="4" placeholder="Enter your content or let AI generate it..." style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit;"></textarea>
-                </div>
-
-                <div class="email-input-group">
-                    <label for="contentImage">Upload Image (Optional)</label>
-                    <input type="file" id="contentImage" accept="image/*" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                </div>
-
-                <div class="email-input-group">
-                    <label for="platformSelect">Platform</label>
-                    <select id="platformSelect" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                        <option value="">Select Platform</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="twitter">Twitter/X</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="facebook">Facebook</option>
-                    </select>
-                </div>
-
-                <div class="email-input-group">
-                    <label for="scheduleTime">Schedule Time (Optional - leave empty for immediate post)</label>
-                    <input type="datetime-local" id="scheduleTime" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                </div>
-
-                <div class="email-input-group">
-                    <label for="hashtagInput">Hashtags (Optional)</label>
-                    <input type="text" id="hashtagInput" placeholder="#marketing #business #growth" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                </div>
-
-                <div class="email-input-group">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="aiGenerate" style="width: auto;">
-                        <span>Let AI generate caption and hashtags for me</span>
-                    </label>
-                </div>
-            </div>
-            <div class="email-modal-actions">
-                <button class="cancel-btn" onclick="closeContentModal()">Cancel</button>
-                <button class="submit-btn" onclick="submitContentAutomation()" id="contentSubmitBtn">Schedule Post</button>
-            </div>
-        </div>
-    </div>
 
     <div class="app-container">
         <!-- Sidebar -->
@@ -1403,7 +1349,6 @@
             <!-- Input Container -->
             <div class="input-container">
                 <div class="quick-actions" id="quickActions">
-                    <div class="quick-action" onclick="openContentModal()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600;">🚀 Automate Post</div>
                     <div class="quick-action" onclick="sendQuickMessage('What should I post today?')">What should I post today?</div>
                     <div class="quick-action" onclick="sendQuickMessage('Who are my competitors with links?')">Competitors with links</div>
                     <div class="quick-action" onclick="sendQuickMessage('Generate Instagram captions')">Generate captions</div>
@@ -1412,10 +1357,23 @@
                     <div class="quick-action" onclick="openEmailModal()">📧 Email full report</div>
                 </div>
 
+                <div id="filePreview" style="display: none; padding: 10px; margin-bottom: 10px; background: #f1f5f9; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img id="previewImage" style="max-width: 60px; max-height: 60px; border-radius: 4px; display: none;">
+                            <span id="fileName" style="font-size: 14px; color: #64748b;"></span>
+                        </div>
+                        <button onclick="clearFile()" style="background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 14px;">Remove</button>
+                    </div>
+                </div>
                 <div class="input-wrapper">
+                    <input type="file" id="fileUpload" accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
+                    <button class="attach-btn" onclick="document.getElementById('fileUpload').click()" title="Upload content" style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; color: #667eea;">
+                        📎
+                    </button>
                     <textarea
                         id="messageInput"
-                        placeholder="Ask anything about your brand..."
+                        placeholder="Ask anything or upload content to post..."
                         rows="1"
                         disabled
                     ></textarea>
@@ -1432,6 +1390,8 @@
         let isConnected = false;
         let conversationHistory = [];
         let chatSessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
+        let uploadedFile = null;
+        let uploadedFileData = null;
 
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -1707,79 +1667,45 @@
             }
         });
 
-        // Content Automation Modal Functions
-        function openContentModal() {
-            if (!isConnected) {
-                showBrandWarning();
-                return;
+        // File Upload Handling
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            uploadedFile = file;
+            const filePreview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const previewImage = document.getElementById('previewImage');
+
+            fileName.textContent = file.name;
+            filePreview.style.display = 'block';
+
+            // Show image preview if it's an image
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedFileData = e.target.result;
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.style.display = 'none';
             }
-            const contentModal = document.getElementById('contentModal');
-            contentModal.classList.add('active');
+
+            // Suggest posting the content
+            if (!messageInput.value.trim()) {
+                messageInput.value = "I want to post this content. Where should I post it?";
+                messageInput.focus();
+            }
         }
 
-        function closeContentModal() {
-            const contentModal = document.getElementById('contentModal');
-            contentModal.classList.remove('active');
-            // Clear form
-            document.getElementById('contentText').value = '';
-            document.getElementById('contentImage').value = '';
-            document.getElementById('platformSelect').value = '';
-            document.getElementById('scheduleTime').value = '';
-            document.getElementById('hashtagInput').value = '';
-            document.getElementById('aiGenerate').checked = false;
-        }
-
-        async function submitContentAutomation() {
-            const platform = document.getElementById('platformSelect').value;
-            const contentText = document.getElementById('contentText').value.trim();
-            const scheduleTime = document.getElementById('scheduleTime').value;
-            const hashtags = document.getElementById('hashtagInput').value.trim();
-            const aiGenerate = document.getElementById('aiGenerate').checked;
-            const imageFile = document.getElementById('contentImage').files[0];
-
-            if (!platform) {
-                alert('Please select a platform');
-                return;
-            }
-
-            const submitBtn = document.getElementById('contentSubmitBtn');
-            submitBtn.textContent = 'Scheduling...';
-            submitBtn.disabled = true;
-
-            try {
-                // Prepare form data
-                const formData = new FormData();
-                formData.append('session_id', sessionId);
-                formData.append('platform', platform);
-                formData.append('content_text', contentText);
-                formData.append('schedule_time', scheduleTime || '');
-                formData.append('hashtags', hashtags);
-                formData.append('ai_generate', aiGenerate);
-                if (imageFile) {
-                    formData.append('image', imageFile);
-                }
-
-                const response = await fetch('/api/content/schedule', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    closeContentModal();
-                    const scheduleMsg = scheduleTime ? `at ${new Date(scheduleTime).toLocaleString()}` : 'immediately';
-                    addMessage('assistant', `✅ Great! Your content has been scheduled to post on ${platform.charAt(0).toUpperCase() + platform.slice(1)} ${scheduleMsg}!\n\nI'll handle everything from here. You'll get a confirmation once it's posted.`);
-                } else {
-                    alert('Error scheduling content: ' + (data.message || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Content scheduling error:', error);
-                alert('Failed to schedule content. Please try again.');
-            } finally {
-                submitBtn.textContent = 'Schedule Post';
-                submitBtn.disabled = false;
-            }
+        function clearFile() {
+            uploadedFile = null;
+            uploadedFileData = null;
+            document.getElementById('fileUpload').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('previewImage').src = '';
         }
 
         // Send Message
@@ -1819,16 +1745,37 @@
             scrollToBottom();
 
             try {
-                const response = await fetch('/api/chat/message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: sessionId,
-                        message: message
-                    })
-                });
+                let response, data;
 
-                const data = await response.json();
+                // If there's an uploaded file, use FormData
+                if (uploadedFile) {
+                    const formData = new FormData();
+                    formData.append('session_id', sessionId);
+                    formData.append('message', message);
+                    formData.append('file', uploadedFile);
+                    if (uploadedFileData) {
+                        formData.append('file_data', uploadedFileData);
+                    }
+
+                    response = await fetch('/api/chat/message', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    // Clear uploaded file after sending
+                    clearFile();
+                } else {
+                    response = await fetch('/api/chat/message', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: sessionId,
+                            message: message
+                        })
+                    });
+                }
+
+                data = await response.json();
 
                 if (data.response) {
                     addMessage('assistant', data.response, data.action_type, data.needs_report, true, data.image_url);
